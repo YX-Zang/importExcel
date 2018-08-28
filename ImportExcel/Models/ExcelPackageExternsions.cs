@@ -1,10 +1,12 @@
 ﻿using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
-
+using System.Web.Configuration;
 
 namespace ReadExcel.Models
 {
@@ -52,7 +54,7 @@ namespace ReadExcel.Models
                         }
                         else if (cell.Start.Column == 4 || cell.Start.Column == 5 || cell.Start.Column == 6 || cell.Start.Column == 8 || cell.Start.Column == 9 || cell.Start.Column == 10 || cell.Start.Column == 11 || cell.Start.Column == 12 || cell.Start.Column == 13 || cell.Start.Column == 14)
                         {
-                            newRow[cell.Start.Column - 1] = cell.Style.Numberformat.Format = "#,##0";
+                            newRow[cell.Start.Column - 1] = cell.Style.Numberformat.Format = "0";
                         }
                         else if (cell.Start.Column == 15 || cell.Start.Column == 16 || cell.Start.Column == 17 || cell.Start.Column == 18 || cell.Start.Column == 19)
                         {
@@ -64,6 +66,39 @@ namespace ReadExcel.Models
 
                     Dt.Rows.Add(newRow);
 
+                }
+            }
+            {
+                //using (SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["TestConnectionString"].ConnectionString)) 
+                //SqlConnection cn = new SqlConnection();
+                //cn.ConnectionString = "Data Source=DESKTOP-3ITCRT5;Initial Catalog=eleTransportDetal;User ID=jobuser;  Password=1q2w3e4r5t_";
+                using (var cn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AseCRSConnectionString"].ConnectionString.ToString()))
+                {
+                    cn.Open();
+                    using (SqlBulkCopy copy = new SqlBulkCopy(cn))
+                    {
+                        copy.ColumnMappings.Add("證券商代號", "證券商代號");
+                        copy.ColumnMappings.Add("名稱", "名稱");
+                        copy.ColumnMappings.Add("開辦日期", "開辦日期");
+                        copy.ColumnMappings.Add("累計開戶數", "累計開戶數");
+                        copy.ColumnMappings.Add("本月交易戶數", "本月交易戶數");
+                        copy.ColumnMappings.Add("本月交易人數", "本月交易人數");
+                        copy.ColumnMappings.Add("平均每戶成交金額", "平均每戶成交金額");
+                        copy.ColumnMappings.Add("委託筆數", "委託筆數");
+                        copy.ColumnMappings.Add("委託金額", "委託金額");
+                        copy.ColumnMappings.Add("成交筆數", "成交筆數");
+                        copy.ColumnMappings.Add("成交金額", "成交金額");
+                        copy.ColumnMappings.Add("平均每筆成交金額", "平均每筆成交金額");
+                        copy.ColumnMappings.Add("公司總成交筆數", "公司總成交筆數");
+                        copy.ColumnMappings.Add("公司總成交金額", "公司總成交金額");
+                        copy.ColumnMappings.Add("占公司成交比率(筆數)", "占公司成交比率(筆數)");
+                        copy.ColumnMappings.Add("占公司成交比率(金額)", "占公司成交比率(金額)");
+                        copy.ColumnMappings.Add("占市場成交比率(筆數)", "占市場成交比率(筆數)");
+                        copy.ColumnMappings.Add("占市場成交比率(金額)", "占市場成交比率(金額)");
+                        copy.ColumnMappings.Add("市場電子式成交額比率", "市場電子式成交額比率");
+                        copy.DestinationTableName = "tbleleTransportDetal";
+                        copy.WriteToServer(Dt);
+                    }
                 }
             }
             return Dt;
