@@ -74,7 +74,12 @@ namespace ReadExcel.Models
                 //cn.ConnectionString = "Data Source=DESKTOP-3ITCRT5;Initial Catalog=eleTransportDetal;User ID=jobuser;  Password=1q2w3e4r5t_";
                 using (var cn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AseCRSConnectionString"].ConnectionString.ToString()))
                 {
+                    
+
                     cn.Open();
+                    using (SqlCommand cmd = new SqlCommand(@"if exists (select * from eleTransportDetal..tbleleTransportDetal)
+	                                                            begin delete from eleTransportDetal..tbleleTransportDetal where 證券商代號='1001' or 證券商代號='1002' or 證券商代號='1010' or 證券商代號='1125' or 證券商代號='合計'
+	                                                            end;", cn))
                     using (SqlBulkCopy copy = new SqlBulkCopy(cn))
                     {
                         copy.ColumnMappings.Add("證券商代號", "證券商代號");
@@ -97,7 +102,9 @@ namespace ReadExcel.Models
                         copy.ColumnMappings.Add("占市場成交比率(金額)", "占市場成交比率(金額)");
                         copy.ColumnMappings.Add("市場電子式成交額比率", "市場電子式成交額比率");
                         copy.DestinationTableName = "tbleleTransportDetal";
+                        cmd.ExecuteNonQuery();
                         copy.WriteToServer(Dt);
+                        cn.Close();
                     }
                 }
             }

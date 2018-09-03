@@ -4,14 +4,61 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Read Excel Using Epplus</h2>
+<h2>Read Excel Using Epplus</h2><p>
 
-@using (Html.BeginForm("ReadExcel", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-    <div cladd="form-group">
-        <input type="file" id="=dataFile" name="upload" />
-    </div>
-    <div class="form-froup">
-        <input type="submit" name="btnupload" value="Upload" class="btn btn-default" />
-    </div>
-}
+
+    @using (Html.BeginForm("ReadExcel", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div cladd="form-group">
+            <select name="options">
+                <option value="電子式交易明細" id="EleTrade">電子式交易明細</option>
+            </select>
+        </div><br>
+        <div>
+            <input type="file" id="dataFile" name="upload" /><br>
+        </div>
+        <div class="form-froup">
+            <input type="submit" name="btnupload" value="Upload" class="btn btn-default" id="check" />
+        </div>
+    }
+    <script src="~/Scripts/jquery-3.3.1.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#check").click(function () {
+                var Drownlist = $("#EleTrade").val()
+                var filename = $("#dataFile").val();
+                var CurrentYear = new Date();
+                var filenamewithoutextension = (filename.split('\\').pop().split('/').pop().split('.'))[0];
+                year = Math.floor(filenamewithoutextension.match(/\d+/) / 100);
+                if (filename == '') {
+                    alert('請選擇上傳的Excel檔案');
+                    return false;
+                }
+                // 判斷數字 用位數 五位 > 10000
+                //判斷字元包含 index of 只要非-1 就是有
+                //filenamewithoutextension.indexOf('電子式交易明細') != -1 &
+                //年份沒有未來時間
+                //月份 不超過12
+                // $("#EleTrade").val() = drowdownlist.value
+                else if (filenamewithoutextension.indexOf('電子式交易明細') != -1 & (filenamewithoutextension.match(/\d+/)) > 10000 & (filenamewithoutextension.match(/\d+/) % 100) <= 12 & (CurrentYear.getFullYear() - 1911) >= year) {
+
+                    var month = (filenamewithoutextension.match(/\d+/)) % 100;
+                    //var a = filenamewithoutextension.match(/\d+/)
+                    alert('包含喔!' + 'month=' + month + 'CurrentYear = ' + (CurrentYear.getFullYear() - 1911) + 'Year = ' + year + filenamewithoutextension.indexOf(Drownlist));
+                    return false;
+                }
+                else {
+                    var exec = (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename.toLowerCase()) : '';
+                    //var exec2 = /([^\\]+)$/.exec()[1];
+                    var exec2 = (filename.split('\\').pop().split('/').pop().split('.'))[0];
+                    //var exec2 = filename.name.substr(0, extIndex);
+                    if (!(exec == "xlsx" || exec == "xls")) {
+                        alert("檔案格式不正確，您上傳的為" + exec + "格式  請重新上傳檔案!" + filenamewithoutextension.indexOf(Drownlist));
+                        return false;
+                    }
+                }
+                return true;
+            });
+        });
+
+    </script>
